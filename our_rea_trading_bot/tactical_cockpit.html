@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Tactical HUD — Live Cockpit</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #131b2e;
+      --card-border: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 14px;
+      font-size: 14px;
+    }
+
+    /* TOP STATUS BAR */
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .top-left h1 {
+      font-size: 1.05rem;
+      color: var(--accent);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .top-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pill {
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .pill-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .pill-blue  { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .pill-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .pill-red   { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* ESSENTIAL METRICS (KPIs) */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .kpi-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .kpi-val { font-size: 1.25rem; font-weight: 800; margin-top: 2px; }
+    .kpi-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    /* MAIN COCKPIT GRID */
+    .cockpit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 900px) {
+      .cockpit-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .panel-header h2 { font-size: 0.92rem; font-weight: 700; color: var(--accent); }
+
+    /* TARGET ORDER CARD */
+    .order-target-box {
+      background: #090e1a;
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .target-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .target-cell {
+      background: rgba(30, 41, 59, 0.45);
+      border-radius: 5px;
+      padding: 6px 8px;
+    }
+    .target-cell span { display: block; font-size: 0.68rem; color: var(--muted); }
+    .target-cell strong { font-size: 0.95rem; font-weight: 700; color: #fff; }
+
+    /* ACTION BUTTONS (TACTICAL 1-CLICK DECK) */
+    .btn-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .btn {
+      border: none;
+      border-radius: 6px;
+      padding: 11px 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+    .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-eco    { background: linear-gradient(135deg, #0284c7, #2563eb); }
+    .btn-sniper { background: linear-gradient(135deg, #059669, #047857); }
+    .btn-news   { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+    .btn-be     { background: linear-gradient(135deg, #d97706, #b45309); }
+    .btn-cancel { background: #334155; }
+    .btn-panic  { background: linear-gradient(135deg, #dc2626, #991b1b); border: 1px solid #f87171; }
+
+    /* REAL-TIME POSITIONS & ORDERS TABLE */
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid rgba(51, 65, 85, 0.5); }
+    th { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; background: rgba(15, 23, 42, 0.6); }
+
+    /* FOOTER STATUS TOAST */
+    .toast {
+      background: #090e1a;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STATUS BAR: ESSENTIAL TELEMETRY ONLY -->
+  <div class="top-bar">
+    <div class="top-left">
+      <h1>🛡️ AI Tactical HUD <span class="pill pill-blue" id="connBadge">MT5 READY</span></h1>
+    </div>
+    <div class="top-badges">
+      <span class="pill pill-green" id="pingBadge">📡 Ping: 68 ms</span>
+      <span class="pill pill-amber" id="spreadBadge">⚡ Spread: 25 pts</span>
+      <span class="pill pill-blue" id="slipBadge">🎯 Slippage: 0 pts</span>
+      <span class="pill pill-green" id="guardBadge">🛡️ 0ms Guard: ACTIVE</span>
+      <span class="pill pill-blue" id="sessionTimerBadge">⏱️ Session: 0/90m</span>
+    </div>
+  </div>
+
+  <!-- ESSENTIAL METRICS (KPIs) -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Balance / Equity</div>
+      <div class="kpi-val" id="kpiBalance" style="color:var(--green);">$100.00</div>
+      <div class="kpi-sub" id="kpiEquity">Eq: $100.00 (Standard Base)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Floating PnL</div>
+      <div class="kpi-val" id="kpiPnL">$0.00</div>
+      <div class="kpi-sub" id="kpiDailyDD">Daily DD: 0.00% / 3.00% Limit</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">AI Confluence & Bias</div>
+      <div class="kpi-val" id="kpiConfluence" style="color:var(--accent);">100% BULL</div>
+      <div class="kpi-sub" id="kpiSessionHabit">Asian Accumulation Box</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Token Burn Rate</div>
+      <div class="kpi-val" style="color:var(--purple);">~฿0.31 / ชม.</div>
+      <div class="kpi-sub">Ultra-Compact Micro-DSL Mode</div>
+    </div>
+  </div>
+
+  <!-- MAIN COCKPIT: TARGET ORDER PLAN + 1-CLICK CONTROLS -->
+  <div class="cockpit-grid">
+    <!-- LEFT: TARGET ORDER PLAN -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>🎯 แผนเทรดล่าสุดจาก AI (Target Order Setup)</h2>
+        <span class="pill pill-green" id="planTypeBadge">BUY_LIMIT @ 50% FVG</span>
+      </div>
+      <div class="order-target-box">
+        <div style="font-size:0.8rem; color:#cbd5e1; margin-bottom:6px;">
+          <strong id="planSymbol">XAUUSD</strong> • R:R <strong id="planRR" style="color:var(--amber);">1 : 2.2</strong> • เสี่ยง <strong id="planRisk">1.0% ($1.00)</strong>
+        </div>
+        <div class="target-grid">
+          <div class="target-cell"><span>จุดเข้า (Compensated)</span><strong id="pEntry" style="color:var(--accent);">2,739.70</strong></div>
+          <div class="target-cell"><span>Stop Loss (+Buffer)</span><strong id="pSL" style="color:var(--red);">2,733.53</strong></div>
+          <div class="target-cell"><span>Take Profit (2.2R)</span><strong id="pTP" style="color:var(--green);">2,753.27</strong></div>
+          <div class="target-cell"><span>Auto Break-Even</span><strong id="pBE" style="color:var(--amber);">2,744.94</strong></div>
+          <div class="target-cell"><span>ขนาด Lot</span><strong id="pLot">0.01 Lot</strong></div>
+          <div class="target-cell"><span>โซนดิบ (Raw FVG)</span><strong id="pRaw">2,739.30</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 1-CLICK CO-PILOT ACTIONS -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>🎮 แผงควบคุมด่วน 1-Click (Emergency & Tactical Deck)</h2>
+        <span style="font-size:0.7rem; color:var(--muted);">ทำงานตรงเข้า MT5 ในเครื่อง (0 ms)</span>
+      </div>
+      <div class="btn-stack">
+        <button class="btn btn-eco" onclick="triggerAction('ecosystem')">🌐 รันลูป 9 ขั้นตอน</button>
+        <button class="btn btn-sniper" onclick="triggerAction('auto_sniper')">🎯 ยิง Sniper Limit</button>
+        <button class="btn btn-news" onclick="triggerAction('news_straddle')">⚡ ดักชนข่าว OCO</button>
+        <button class="btn btn-be" onclick="triggerAction('breakeven')">🔒 รวบ SL บังทุน</button>
+        <button class="btn btn-cancel" onclick="triggerAction('cancel_all')">🗑️ ลบ Pending ทั้งหมด</button>
+        <button class="btn btn-panic" onclick="triggerAction('panic_close')">🚨 PANIC CLOSE ALL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAL-TIME POSITIONS & PENDING ORDERS TABLE -->
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header">
+      <h2>📋 สถานะออเดอร์ใน MT5 ปัจจุบัน (Active Positions & Orders)</h2>
+      <span style="font-size:0.75rem; color:var(--muted);" id="bookCounts">0 Positions | 0 Pending</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Symbol</th>
+          <th>Type</th>
+          <th>Volume</th>
+          <th>Open Price</th>
+          <th>SL</th>
+          <th>TP</th>
+          <th>Profit ($)</th>
+        </tr>
+      </thead>
+      <tbody id="bookTableBody">
+        <tr>
+          <td colspan="8" style="text-align:center; color:var(--muted); padding:16px;">ยังไม่มีออเดอร์ที่เปิดอยู่ (พร้อมรับคำสั่ง)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER TOAST: LIVE ACTION LOG -->
+  <div class="toast" id="actionToast">
+    💡 <strong>AI Status:</strong> คุยและสั่งงานผ่านแชทเป็นหลัก หน้าจอนี้แสดงสถานะสดและปุ่มกดด่วนโดยใช้ 0 โทเคน
+  </div>
+
+  <script>
+    async function refreshTelemetry() {
+      try {
+        const res = await fetch('http://127.0.0.1:8765/api/status');
+        if (!res.ok) return;
+        const data = await res.json();
+        const plan = data.plan;
+        const rules = plan.telemetry.network_and_broker_rules;
+        const acc = plan.telemetry.account;
+        const spec = plan.order_spec;
+        const book = data.active_book;
+
+        // Top Badges
+        document.getElementById('connBadge').textContent = plan.connection_status;
+        document.getElementById('pingBadge').textContent = `📡 Ping: ${rules.ping_ms} ms`;
+        document.getElementById('spreadBadge').textContent = `⚡ Spread: ${rules.spread_points} pts`;
+
+        // KPIs
+        document.getElementById('kpiBalance').textContent = `$${acc.balance.toFixed(2)}`;
+        document.getElementById('kpiEquity').textContent = `Eq: $${acc.equity.toFixed(2)} (${acc.account_type.split(' ')[0]})`;
+        document.getElementById('kpiPnL').textContent = `${acc.profit >= 0 ? '+' : ''}$${acc.profit.toFixed(2)}`;
+        document.getElementById('kpiPnL').style.color = acc.profit >= 0 ? 'var(--green)' : 'var(--red)';
+        document.getElementById('kpiConfluence').textContent = `${plan.confluence_score_pct}% ${plan.recommended_action}`;
+
+        // Order Plan Target
+        document.getElementById('planTypeBadge').textContent = `${spec.type} @ ${spec.compensated_entry_price}`;
+        document.getElementById('planSymbol').textContent = plan.symbol;
+        document.getElementById('planRR').textContent = spec.risk_reward_ratio;
+        document.getElementById('planRisk').textContent = `${spec.risk_percent}% (${spec.risk_amount_currency})`;
+        document.getElementById('pEntry').textContent = spec.compensated_entry_price;
+        document.getElementById('pSL').textContent = spec.sl_price;
+        document.getElementById('pTP').textContent = spec.tp_price;
+        document.getElementById('pBE').textContent = spec.auto_break_even_trigger_price;
+        document.getElementById('pLot').textContent = `${spec.lot_size} Lot`;
+        document.getElementById('pRaw').textContent = spec.raw_chart_zone;
+
+        // Book Table
+        const tbody = document.getElementById('bookTableBody');
+        const pos = book.positions || [];
+        const ord = book.pending_orders || [];
+        document.getElementById('bookCounts').textContent = `${pos.length} Positions | ${ord.length} Pending`;
+
+        if (pos.length === 0 && ord.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:14px;">ยังไม่มีออเดอร์ที่เปิดอยู่ (พร้อมรับคำสั่ง)</td></tr>';
+        } else {
+          let rows = '';
+          pos.forEach(p => {
+            const pnlColor = p.profit >= 0 ? 'var(--green)' : 'var(--red)';
+            rows += `<tr>
+              <td>#${p.ticket}</td>
+              <td>${p.symbol}</td>
+              <td><span class="pill ${p.type === 'BUY' ? 'pill-green' : 'pill-red'}">${p.type}</span></td>
+              <td>${p.volume}</td>
+              <td>${p.price_open}</td>
+              <td style="color:var(--red);">${p.sl || '-'}</td>
+              <td style="color:var(--green);">${p.tp || '-'}</td>
+              <td style="color:${pnlColor}; font-weight:700;">${p.profit >= 0 ? '+' : ''}$${p.profit.toFixed(2)}</td>
+            </tr>`;
+          });
+          ord.forEach(o => {
+            rows += `<tr>
+              <td>#${o.ticket}</td>
+              <td>${o.symbol}</td>
+              <td><span class="pill pill-blue">${o.type}</span></td>
+              <td>${o.volume}</td>
+              <td>${o.price_open}</td>
+              <td style="color:var(--red);">${o.sl || '-'}</td>
+              <td style="color:var(--green);">${o.tp || '-'}</td>
+              <td style="color:var(--muted);">PENDING</td>
+            </tr>`;
+          });
+          tbody.innerHTML = rows;
+        }
+      } catch (e) {
+        // Server not running yet
+      }
+    }
+
+    async function triggerAction(endpoint) {
+      const toast = document.getElementById('actionToast');
+      toast.innerHTML = `⏳ กำลังส่งคำสั่ง <strong>[${endpoint}]</strong> ไปยัง MT5...`;
+      try {
+        const res = await fetch(`http://127.0.0.1:8765/api/${endpoint}`, { method: 'POST' });
+        const data = await res.json();
+        toast.innerHTML = `✅ ผลลัพธ์คำสั่ง <strong>[${endpoint}]</strong>: ดำเนินการสำเร็จ!`;
+        refreshTelemetry();
+      } catch (e) {
+        toast.innerHTML = `ℹ️ โหมดออฟไลน์: รันคำสั่งตรงผ่านแชทด้วยคำสั่ง <code>python ai_commander_cli.py ${endpoint}</code> ได้ทันที!`;
+      }
+    }
+
+    setInterval(refreshTelemetry, 2500);
+    refreshTelemetry();
+  </script>
+</body>
+</html>

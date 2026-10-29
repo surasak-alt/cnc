@@ -1,0 +1,92 @@
+{
+  "audited_at": "2026-10-29T04:20:41.177220+00:00",
+  "measured_single_wake_tokens": 433,
+  "active_wakes_per_hour": 3.5,
+  "real_tokens_per_hour": 1516,
+  "sovereign_fallback_chain": [
+    {
+      "priority": 1,
+      "model_id": "gemini_4_argon",
+      "model_name": "Gemini 4 Argon (Sovereign Deep Reasoning - Primary)",
+      "daily_token_limit": 120000,
+      "min_confidence_required": 0.78,
+      "max_allowed_risk_pct": 1.5,
+      "capabilities": "Full War-Room Debate, Complex SMT Conflict Resolution, Deep Post-Trade Autopsy"
+    },
+    {
+      "priority": 2,
+      "model_id": "gemini_3_8_pro_high",
+      "model_name": "Gemini 3.8 Pro (High) / Claude Sonnet (Fallback #1 - Second Best)",
+      "daily_token_limit": 250000,
+      "min_confidence_required": 0.8,
+      "max_allowed_risk_pct": 1.0,
+      "capabilities": "High-Precision Quantitative Verification & Red Team Audit (Auto-activated if Gemini 4 exhausted)"
+    },
+    {
+      "priority": 3,
+      "model_id": "gemini_3_8_flash_high",
+      "model_name": "Gemini 3.8 Flash (High) (Fallback #2 - High-Speed Tactical)",
+      "daily_token_limit": 500000,
+      "min_confidence_required": 0.83,
+      "max_allowed_risk_pct": 0.5,
+      "capabilities": "Fast Defensive Sniper Mode (Auto-caps risk at 0.5% and demands >=83% confidence)"
+    },
+    {
+      "priority": 4,
+      "model_id": "local_deterministic_numpy",
+      "model_name": "Tier 0 Local NumPy + TruthGatekeeperFSM (Fallback #3 - Zero-Token Survival)",
+      "daily_token_limit": 999999999,
+      "min_confidence_required": 0.86,
+      "max_allowed_risk_pct": 0.5,
+      "capabilities": "100% Offline/Zero-Quota Mathematical Execution & Position Protection (0 Tokens)"
+    }
+  ],
+  "package_endurance_summary": {
+    "1_ANTIGRAVITY_PRO_WORKSPACE_SUBSCRIPTION": {
+      "package_name": "แพ็กเกจปัจจุบันของคุณ (Google Antigravity / Pro Subscription + Auto-Fallback)",
+      "daily_token_allowance_est": 250000,
+      "wakes_per_active_hour": 3.5,
+      "real_tokens_per_active_hour": 1516,
+      "max_continuous_hours_per_day": "24 ชั่วโมงเต็ม (ใช้จริงเพียง ~36,288 โทเคน/24 ชม. หรือ 14.5% ของโควต้ารายวัน)",
+      "recommended_session_6h_tokens": 9096,
+      "recommended_session_6h_quota_used_pct": "3.64%",
+      "monthly_30_days_6h_total_tokens": 272880,
+      "will_it_run_out": "ไม่มีวันหมดโควต้า และหาก Gemini 4 Argon เต็มในวันที่มีข่าวหนัก ระบบจะสลับลง Gemini 3.8 Pro -> Flash -> Local NumPy อัตโนมัติ"
+    },
+    "2_FAILOVER_CASCADE_SIMULATION": {
+      "when_gemini_4_argon_available": {
+        "active_model_id": "gemini_4_argon",
+        "active_model_name": "Gemini 4 Argon (Sovereign Deep Reasoning - Primary)",
+        "cascade_priority": 1,
+        "failover_triggered": false,
+        "enforced_min_confidence": 0.78,
+        "enforced_max_risk_pct": 1.5,
+        "tokens_used_today": 433,
+        "daily_limit": 120000,
+        "failover_note": "PRIMARY_SOVEREIGN_ACTIVE: Gemini 4 Argon operating at full capacity."
+      },
+      "when_gemini_4_argon_exhausted": {
+        "active_model_id": "gemini_3_8_pro_high",
+        "active_model_name": "Gemini 3.8 Pro (High) / Claude Sonnet (Fallback #1 - Second Best)",
+        "cascade_priority": 2,
+        "failover_triggered": true,
+        "enforced_min_confidence": 0.8,
+        "enforced_max_risk_pct": 1.0,
+        "tokens_used_today": 432,
+        "daily_limit": 250000,
+        "failover_note": "AUTO_FAILOVER_ACTIVE (Level 2): Switched to Gemini 3.8 Pro (High) / Claude Sonnet (Fallback #1 - Second Best) with tightened safety (Min Confidence >= 80%, Max Risk capped at 1.0%)."
+      },
+      "when_both_argon_and_pro_exhausted": {
+        "active_model_id": "gemini_3_8_flash_high",
+        "active_model_name": "Gemini 3.8 Flash (High) (Fallback #2 - High-Speed Tactical)",
+        "cascade_priority": 3,
+        "failover_triggered": true,
+        "enforced_min_confidence": 0.83,
+        "enforced_max_risk_pct": 0.5,
+        "tokens_used_today": 0,
+        "daily_limit": 500000,
+        "failover_note": "AUTO_FAILOVER_ACTIVE (Level 3): Switched to Gemini 3.8 Flash (High) (Fallback #2 - High-Speed Tactical) with tightened safety (Min Confidence >= 83%, Max Risk capped at 0.5%)."
+      }
+    }
+  }
+}

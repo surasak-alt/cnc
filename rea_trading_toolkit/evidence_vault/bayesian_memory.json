@@ -1,0 +1,60 @@
+{
+  "generation": 4,
+  "updated_at": "2026-10-29T04:20:38.785207+00:00",
+  "algo_weights": {
+    "JUDAS_SWING_STOP_RAID": {
+      "wins": 29,
+      "losses": 6,
+      "bayesian_weight": 1.28
+    },
+    "ICEBERG_ABSORPTION_WALL": {
+      "wins": 26,
+      "losses": 6,
+      "bayesian_weight": 1.26
+    },
+    "LIQUIDITY_VACUUM_MANIPULATION": {
+      "wins": 18,
+      "losses": 7,
+      "bayesian_weight": 1.08
+    },
+    "TWAP_VWAP_TREND_EXECUTION": {
+      "wins": 20,
+      "losses": 7,
+      "bayesian_weight": 1.12
+    },
+    "CHOP_ACCUMULATION_BOX": {
+      "wins": 8,
+      "losses": 12,
+      "bayesian_weight": 0.6
+    }
+  },
+  "autopsy_history": [
+    {
+      "timestamp": "2026-10-29T03:55:47.652446+00:00",
+      "algo_type": "ICEBERG_ABSORPTION_WALL",
+      "outcome": "WIN",
+      "realized_r": 2.25,
+      "observed_pierce_atr": 0.45,
+      "updated_bayesian_weight": 1.25,
+      "notes": "Unit test verification"
+    },
+    {
+      "timestamp": "2026-10-29T04:11:24.463634+00:00",
+      "algo_type": "ICEBERG_ABSORPTION_WALL",
+      "outcome": "WIN",
+      "realized_r": 2.25,
+      "observed_pierce_atr": 0.45,
+      "updated_bayesian_weight": 1.26,
+      "notes": "Unit test verification"
+    },
+    {
+      "timestamp": "2026-10-29T04:20:38.785197+00:00",
+      "algo_type": "JUDAS_SWING_STOP_RAID",
+      "outcome": "WIN",
+      "realized_r": 2.25,
+      "observed_pierce_atr": 0.45,
+      "updated_bayesian_weight": 1.28,
+      "notes": "Unit test verification"
+    }
+  ]
+}

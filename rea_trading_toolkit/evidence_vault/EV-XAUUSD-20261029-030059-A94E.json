@@ -1,0 +1,51 @@
+{
+  "bundle_id": "EV-XAUUSD-20261029-030059-A94E",
+  "symbol": "XAUUSD",
+  "timeframe": "M15",
+  "generated_at": "2026-10-29T03:00:59.657314+00:00",
+  "phase": "UNDERSTAND",
+  "findings": [
+    {
+      "category": "SESSION_CHRONOS",
+      "metric_name": "current_trading_session",
+      "observed_value": 10.0,
+      "benchmark_value": 19.0,
+      "description": "Active Thai Session: Asian Accumulation Box (10:00 THA)",
+      "is_anomaly": false
+    },
+    {
+      "category": "STOP_HUNT_PIERCE",
+      "metric_name": "pierce_depth_atr_BUY_SIDE",
+      "observed_value": 1.08,
+      "benchmark_value": 0.42,
+      "description": "Institutional liquidity sweep detected on BUY_SIDE piercing 1.08x ATR(14)",
+      "is_anomaly": true
+    },
+    {
+      "category": "VOLUME_ABSORPTION",
+      "metric_name": "effort_vs_result_ratio",
+      "observed_value": 4.94,
+      "benchmark_value": 1.0,
+      "description": "Effort vs Result Ratio: 4.94 (Values <0.6 = Hollow push, >1.5 = Institutional limit absorption)",
+      "is_anomaly": false
+    },
+    {
+      "category": "LIQUIDITY_PURGE",
+      "metric_name": "active_liquidity_pools",
+      "observed_value": 3.0,
+      "benchmark_value": 4.0,
+      "description": "Decompiled Liquidity Map: 0 Buy-Side Pools above, 3 Sell-Side Pools below",
+      "is_anomaly": false
+    }
+  ],
+  "algo_footprint": {
+    "algo_type": "ICEBERG_ABSORPTION_WALL",
+    "historical_win_probability": 0.82,
+    "sample_size": 250,
+    "primary_intent": "Institutional passive limit orders absorbing aggressive market orders."
+  },
+  "confidence_score": 0.86,
+  "known_limitations": [],
+  "verdict": "SNIPER_SETUP_CONFIRMED",
+  "reasoning_summary": "Institutional ICEBERG_ABSORPTION_WALL confirmed with 86.0% empirical confidence. 50% FVG sniper entry authorized."
+}
